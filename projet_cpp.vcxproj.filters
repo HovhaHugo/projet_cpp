@@ -18,30 +18,36 @@
     <ClCompile Include="projet_cpp.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Bureau\Programmation\appli (1)\src\CException.cpp">
+    <ClCompile Include="Parser.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Bureau\Programmation\appli (1)\src\CMatrix.cpp">
+    <ClCompile Include="CException.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Bureau\Programmation\appli (1)\src\OverloadingOperator.cpp">
+    <ClCompile Include="CMatrix.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Bureau\Programmation\appli (1)\src\Parser.cpp">
+    <ClCompile Include="OverloadedOperator.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="CList.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Bureau\Programmation\appli %281%29\src\CException.h">
+    <ClInclude Include="Parser.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Bureau\Programmation\appli %281%29\src\CMatrix.h">
+    <ClInclude Include="CException.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Bureau\Programmation\appli %281%29\src\OverloadingOperator.h">
+    <ClInclude Include="CMatrix.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Bureau\Programmation\appli %281%29\src\Parser.h">
+    <ClInclude Include="OverloadedOperator.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="CList.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>

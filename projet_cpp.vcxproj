@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -139,17 +139,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Bureau\Programmation\appli (1)\src\CException.cpp" />
-    <ClCompile Include="..\..\..\Bureau\Programmation\appli (1)\src\CMatrix.cpp" />
-    <ClCompile Include="..\..\..\Bureau\Programmation\appli (1)\src\OverloadingOperator.cpp" />
-    <ClCompile Include="..\..\..\Bureau\Programmation\appli (1)\src\Parser.cpp" />
+    <ClCompile Include="CException.cpp" />
+    <ClCompile Include="CList.cpp" />
+    <ClCompile Include="CMatrix.cpp" />
+    <ClCompile Include="OverloadedOperator.cpp" />
+    <ClCompile Include="Parser.cpp" />
     <ClCompile Include="projet_cpp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Bureau\Programmation\appli %281%29\src\CException.h" />
-    <ClInclude Include="..\..\..\Bureau\Programmation\appli %281%29\src\CMatrix.h" />
-    <ClInclude Include="..\..\..\Bureau\Programmation\appli %281%29\src\OverloadingOperator.h" />
-    <ClInclude Include="..\..\..\Bureau\Programmation\appli %281%29\src\Parser.h" />
+    <ClInclude Include="CException.h" />
+    <ClInclude Include="CList.h" />
+    <ClInclude Include="CMatrix.h" />
+    <ClInclude Include="OverloadedOperator.h" />
+    <ClInclude Include="Parser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
