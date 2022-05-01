@@ -2,17 +2,18 @@
 //
 
 #include <iostream>
+#include "CMatrix.h"
 using namespace std;
+
 
 int main()
 {
-    cout << "Hello World!\n";
-    cout << "J'ai réussi à faire le dépot git";
+	cout << "test commence" << endl;
+
+	const char* test = "C:/Users/mathi/OneDrive/Bureau/test.txt";
+	CMatrix<double> *matricetest = new CMatrix<double>(test);
+
+	delete matricetest;
+
+	cout << "test fini" << endl;
 }
-
-// Quick tips : 
-// - Execute : Ctrl+F5 or menu Déboguer > Exécuter sans débogage
-// - Déboguer : F5 or menu Déboguer > Démarrer le débogage
-// - For the classes, we will put them on "fichiers source"
-// - For the .h files, we will put them on "fichiers d'en-tête"
-

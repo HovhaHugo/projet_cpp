@@ -1,45 +1,65 @@
 
 #include "Parser.h"
 #include "CException.h"
-#include "CList.h"
 #include <fstream>
 #include <string.h>
 
 #define LINE_LENGTH 255
-
-#define TYPE_DOUBLE 1
-
-using namespace std;
-
 
 /***
 * Convert the parameter pcOrigin to uppercase and store it in pcOutput
 * Input: char*:pcOutput, char*:pcOrigin
 * Output: char*:pcOutput
 * Precondition: pcOutput must be initialized as the same size as pcOrigin
-* Postcondition: pcOutput contain pcOrigin converted to uppercase
+* Postcondition: pcOutput contains pcOrigin converted to uppercase
 ***/
 void toupper(char* pcOutput, const char* pcOrigin) {
     for (int iLoop = 0; pcOrigin[iLoop] != '\0'; iLoop++) {
-        pcOutput[iLoop] = toupper(pcOutput[iLoop]);
+        pcOutput[iLoop] = toupper(pcOrigin[iLoop]);
     }
 }
 
 
+/***
+* Clear the content of a chain of character. Replace all the element by \0
+* Input: char*:pcInput, unsigned int: uiSize
+* Output: char*:pcInput
+* Precondition: uiSize must be the size of pcOutput
+* Postcondition: pcOutput is fill with \0
+***/
+void clear(char* pcOutput, unsigned int uiSize) {
+    for (unsigned int uiLoop = 0; uiLoop < uiSize ; uiLoop++) {
+        pcOutput[uiLoop] = '\0';
+    }
+}
+
+
+/***
+* Delete all the matrix memory
+* Input: double** ppdMatrix, unsigned int uiNbOfLine
+* Output: /
+* Precondition: ppdMatrix has been allocated explicitly in memory
+* Postcondition: ppdMatrix has been deleted from memory
+***/
+void matrixDelete(double** ppdMatrix,unsigned int uiNbOfLine) {
+    for (unsigned int uiLoop = 0; uiLoop < uiNbOfLine; ++uiLoop)
+        delete[] ppdMatrix[uiLoop];
+    delete[] ppdMatrix;
+}
+
 
 /***
 * Open a file and read the content to build a matrix
-* Input: char*: pcFilePath, unsigned int &uiNbOfColumnParam, unsigned int &uiNbOfLineParam
+* Input: const char*: pcFilePath, unsigned int *uiNbOfColumnParam, unsigned int *uiNbOfLineParam
 * Output: CList<CList<Type>>*, &uiNbOfColumnParam, &uiNbOfLineParam
 * Precondition: /
 * Postcondition: CList<CList<Type>> contains the list of lists (=matrix), uiNbOfColumnParam the number of column read:
- * the size of the sub-lists, uiNbOfLineParam the number of row: the size of the main list.
+* the size of the sub-lists, uiNbOfLineParam the number of row: the size of the main list.
 ***/
-template<class Type>
-CList<CList<Type>>* Parser<Type>::PARParseData(char* pcFilePath, unsigned int& uiNbOfColumnParam, unsigned int& uiNbOfLineParam)
+double** ParseDataDouble(const char* pcFilePath, unsigned int* uiNbOfColumnParam, unsigned int* uiNbOfLineParam)
 {
 
-    ifstream fichier(pcFilePath);
+    std::ifstream fichier(pcFilePath);
 
     if (!fichier.is_open()) {
         CException EXCError(EXCEPTION_MissingFile);
@@ -49,10 +69,8 @@ CList<CList<Type>>* Parser<Type>::PARParseData(char* pcFilePath, unsigned int& u
     //Data who will be use before to be assigned to the matrix's variables
     unsigned int uiNbOfColumn = 0;
     unsigned int uiNbOfLine = 0;
-    CList<CList<Type>> LISList;
 
-    //Store which data type has been identified
-    unsigned int uiIdentifiedType = 0;
+    double** ppdList = nullptr;
 
     char cLigne[LINE_LENGTH];
 
@@ -64,27 +82,44 @@ CList<CList<Type>>* Parser<Type>::PARParseData(char* pcFilePath, unsigned int& u
     //Read the file line to line
     while (bContinueMain) {
 
+        if (fichier.eof()) {
+
+            if (bMatrixReading) {
+                matrixDelete(ppdList, uiNbLineFound);
+                throw CException(EXCEPTION_ErrorDataFile);
+            }     
+
+            bContinueMain = false;
+            continue;
+        }
+
         fichier.getline(cLigne, LINE_LENGTH);
+
+        if (cLigne[0] == '\0') {
+            continue;
+        }
 
         //If we are currently during the matrix's reading part
         if (bMatrixReading) {
 
             if (cLigne[0] == ']') {   //End of the reading
+
+                if (uiNbOfLine != uiNbLineFound) {
+                    matrixDelete(ppdList, uiNbLineFound);
+                    throw CException(EXCEPTION_WrongMatrix);
+                }
+
+                *uiNbOfColumnParam = uiNbOfColumn;
+                *uiNbOfLineParam = uiNbOfLine;
+
                 bMatrixReading = false;
                 continue;
             }
 
             uiNbLineFound++;
             if (uiNbLineFound > uiNbOfLine) {   //Incoherent with data read before
+                matrixDelete(ppdList, uiNbLineFound);
                 throw CException(EXCEPTION_WrongMatrix);
-            }
-
-            switch (uiIdentifiedType) {       //We had a row to the matrix
-            case TYPE_DOUBLE: {
-                LISList.LISAddElement(new CList<double>);
-
-            } break;
-                //Other cases for other possible type
             }
 
             //Nb of column found
@@ -97,18 +132,32 @@ CList<CList<Type>>* Parser<Type>::PARParseData(char* pcFilePath, unsigned int& u
                 uiNbElementFound++;
 
                 if (uiNbElementFound > uiNbOfColumn) {   //Incoherent with data read before
+                    matrixDelete(ppdList, uiNbLineFound);
                     throw CException(EXCEPTION_WrongMatrix);
                 }
 
-                switch (uiIdentifiedType) {
-                case TYPE_DOUBLE: {
-                    LISList.LISGetElement(uiNbLineFound - 1).LISAddElement(atof(pcFound));
-                }break;
-                    //Other cases for other possible type
+                char* pcEndPtr;
+                double dFoundConverted = strtod(pcFound, &pcEndPtr);
+
+                if (pcEndPtr == pcFound) {
+                    matrixDelete(ppdList, uiNbLineFound);
+                    throw CException(EXCEPTION_ConversionError);
                 }
+
+                //-1 because arrays start at 0
+                ppdList[uiNbLineFound-1][uiNbElementFound-1] = dFoundConverted;
+                
                 pcFound = strtok(nullptr, " ");    //seek the next substring
 
             }//while(pcFound !=nullptr)
+
+            if (uiNbElementFound < uiNbOfColumn) {
+                matrixDelete(ppdList, uiNbLineFound);
+                throw CException(EXCEPTION_WrongMatrix);
+            }
+
+            //Jump to the next iteration of while (bContinueMain)
+            continue;
 
         }//if(bMatrixReading)
 
@@ -117,70 +166,72 @@ CList<CList<Type>>* Parser<Type>::PARParseData(char* pcFilePath, unsigned int& u
         pcLineIdentifier = strtok(cLigne, "=");
 
         //Put the word to upper to avoid case error
-        char tcUpperText[strlen(pcLineIdentifier)];
-        strcpy(tcUpperText, pcLineIdentifier);
+        char* tcUpperText = (char*)malloc(sizeof(char)*LINE_LENGTH);
+        if (tcUpperText == nullptr) {
+            throw CException(EXCEPTION_MallocError);
+        }
+
+        //strcpy(tcUpperText, pcLineIdentifier);
         toupper(tcUpperText, pcLineIdentifier);
 
         pcLineIdentifier = strtok(nullptr, " ");    //pcLineIdentifier contains now the data to get
+        if (pcLineIdentifier == nullptr) {
+            free(tcUpperText);
+            throw CException(EXCEPTION_ErrorDataFile);
+        }
 
         if (strstr(tcUpperText, "TYPEMATRICE")) {               //Identification of the matrix's type
 
-            if (strstr(tcUpperText, "DOUBLE")) {
-                LISList = new CList<CList<double>>;
-                //If there were more valide types, if(){}else if(){} else [...]
-            }
-            else {
+            clear(tcUpperText,LINE_LENGTH);
+            toupper(tcUpperText, pcLineIdentifier);
+
+            if (strstr(tcUpperText, "DOUBLE")==0) {
+                free(tcUpperText);
                 throw CException(EXCEPTION_InvalideType);
             }
 
-
         }
-        else if (strstr(tcUpperText, "NBLIGNES")) {           //Identification of the matrix's line number
+        else if (strstr(tcUpperText, "NBLIGNES")) {           //Identification of the matrix's number of line 
 
-            try {
-                char* pcEnd;
-                uiNbOfLine = strtol(pcLineIdentifier, &pcEnd, 10);
-            }
-            catch (CException& e) {
-                e.EXCsetValue(EXCEPTION_ConversionError);
-                throw e;
+            char* pcEndPtr;
+            uiNbOfLine = strtod(pcLineIdentifier, &pcEndPtr);
+
+            if (pcEndPtr == pcLineIdentifier) {
+                throw CException(EXCEPTION_ConversionError);
             }
 
         }
-        else if (strstr(tcUpperText, "NBCOLONNES")) {         //Identification of the matrix's column number
+        else if (strstr(tcUpperText, "NBCOLONNES")) {         //Identification of the matrix's number of column 
 
-            try {
-                char* pcEnd;
-                uiNbOfColumn = strtol(pcLineIdentifier, &pcEnd, 10);
-            }
-            catch (CException& e) {
-                e.EXCsetValue(EXCEPTION_ConversionError);
-                throw e;
+            char* pcEndPtr;
+            uiNbOfColumn = strtod(pcLineIdentifier, &pcEndPtr);
+
+            if (pcEndPtr == pcLineIdentifier) {
+                throw CException(EXCEPTION_ConversionError);
             }
 
         }
         else if (strstr(tcUpperText, "MATRICE")) {            //Identification of the matrix's content
 
-            if (uiNbOfLine == 0 && uiNbOfColumn == 0) {
-                throw CException(EXCEPTION_MissingDataMatrix);
+            if (uiNbOfLine == 0 || uiNbOfColumn == 0) {
+                free(tcUpperText);
+                throw CException(EXCEPTION_ErrorDataFile);
             }
+
+            ppdList = new double* [uiNbOfLine];
+            for (unsigned int uiLoop = 0; uiLoop < uiNbOfLine; uiLoop++)
+                ppdList[uiLoop] = new double[uiNbOfColumn];
 
             bMatrixReading = true;
 
         }
-        else if (*cLigne == EOF) {
-            //End of file, we end the loop and we check if we have all the needed data
-            if (uiNbOfColumn != 0 && uiNbOfLine != 0)
-                bContinueMain = false;
-            else
-                throw CException(EXCEPTION_MissingDataFile);
 
-        }
+        free(tcUpperText);
 
-    }
+    }//while(bContinueMain)
 
     fichier.close();
 
-    return &LISList;
+    return ppdList;
 
 }

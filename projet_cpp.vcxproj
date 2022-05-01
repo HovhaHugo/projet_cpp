@@ -140,7 +140,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CException.cpp" />
-    <ClCompile Include="CList.cpp" />
     <ClCompile Include="CMatrix.cpp" />
     <ClCompile Include="OverloadedOperator.cpp" />
     <ClCompile Include="Parser.cpp" />
@@ -148,7 +147,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CException.h" />
-    <ClInclude Include="CList.h" />
     <ClInclude Include="CMatrix.h" />
     <ClInclude Include="OverloadedOperator.h" />
     <ClInclude Include="Parser.h" />

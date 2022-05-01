@@ -6,8 +6,8 @@
 class CException
 {
 private:
-	unsigned int uiEXCvalue;
-	char* pcEXCfunction;
+	unsigned int uiEXCValue;
+	char* pcEXCFunction;
 
 public:
 	CException();
