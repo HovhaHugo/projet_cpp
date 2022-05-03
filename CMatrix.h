@@ -11,13 +11,10 @@ template<class Type>
 class CMatrix
 {
 private:
-	
-
-public:
-
 	unsigned int uiMATColumnNumber;
 	unsigned int uiMATLineNumber;
 	Type** pptypeMatrixContent;
+public:
 	//Constructors
 	CMatrix();
 	CMatrix(Type** ptTypeMatrix,unsigned int uiNbColomn, unsigned int uiNbLine);
@@ -25,18 +22,22 @@ public:
 	CMatrix(CMatrix MATParam);
 
 	//Overloaded Operators
-	operator*(Type tMultiplication);
-	operator*(CMatrix MATParam);
-	operator+(CMatrix MATParam);
-	operator-(CMatrix MATParam);
+	CMatrix operator*(double dMultiplicator);
+	CMatrix operator/(double dDivisor);
+	CMatrix operator*(CMatrix MATParam);
+	CMatrix operator+(CMatrix MATParam);
+	CMatrix operator-(CMatrix MATParam);
+	CMatrix operator=(CMatrix MATParam); //Just the same as the copy constructor
 
 	//Method
-	CMatrix MATTransposer();
+	void MATTransposer();
 	void MATshow();
 	unsigned int MATGetColumnNumbre();
 	unsigned int MATGetLineNumbre();
 	Type MATGetValue(unsigned int uiColomn, unsigned int uiLine);
 
+
+	//Constructors
 	CMatrix(const char* pcFilePath) {
 
 		try {
@@ -51,7 +52,7 @@ public:
 	CMatrix() {
 		uiMATColumnNumber = 0;
 		uiMATLineNumber = 0;
-		lisMATContent = NULL;
+		pptypeMatrixContent = NULL;
 	}
 
 	CMatrix(Type** ptTypeMatrix, unsigned int uiNbColomn, unsigned int uiNbLine) {
@@ -59,7 +60,7 @@ public:
 		uiMATLineNumber = uiNbLine;
 		for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
 			for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
-				lisMATContent[iLoopColomne][iLoopLine] = ptTypeMatrix[iLoopColomne][iLoopLine];
+				pptypeMatrixContent[iLoopColomne][iLoopLine] = ptTypeMatrix[iLoopColomne][iLoopLine];
 			}
 		}
 	}
@@ -75,38 +76,191 @@ public:
 		uiMATLineNumber = MATParam.uiMATLineNumber;
 		for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
 			for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
-				lisMATContent[iLoopColomne][iLoopLine] = MATParam.MATGetValue(iLoopColomne, iLoopLine);
+				pptypeMatrixContent[iLoopColomne][iLoopLine] = MATParam.MATGetValue(iLoopColomne, iLoopLine);
 			}
 		}
 	}
 
-	CMatrix MATTransposer() {
+	CMatrix operator*(double dMultiplicator){
+
+		CMatrix<Type> MATTMatrix = new CMatrix<Type>(null,uiMATColumnNumber, uiMATLineNumber);
+
+		//Multiplication
+		for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
+			for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
+				MATTMatrix.pptypeMatrixContent[iLoopColomne][iLoopLine] = MATTMatrix.MATGetValue(iLoopColomne,iLoopLine)*dMultiplicator;
+			}
+		}
+		
+		return MATTMatrix;
+	}
+
+	CMatrix operator/(double dDivisor){
+		//Create a new objet and send it at the end
+		if(dDivisor == 0){
+			CException EXCError(EXCEPTION_MissingFile);
+        	throw EXCError;
+		}
+		CMatrix<Type> MATTMatrix = new CMatrix<Type>(null,uiMATColumnNumber, uiMATLineNumber);
+
+		//Division
+		for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
+			for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
+				MATTMatrix.pptypeMatrixContent[iLoopColomne][iLoopLine] = MATGetValue(iLoopColomne,iLoopLine)/dMultiplicator;
+			}
+		}
+		
+		return MATTMatrix;
+	}
+
+
+	CMatrix operator*(CMatrix MATParam){
+		//We don't allow the multiplication between 2 char/object matrix
+		//typeid(T) == typeid(double)
+		if(uiMATColumnNumber != MATParam.MATGetLineNumbre()){
+			CException EXCError(EXCEPTION_MissingFile);
+        	throw EXCError;
+		}
+		CMatrix<Type> MATTMatrix = new CMatrix<Type>(null,uiMATColumnNumber, uiMATLineNumber);
+
+		//Transposition
+		for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
+			for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
+				MATTMatrix.pptypeMatrixContent[iLoopColomne][iLoopLine] = MATGetValue(iLoopColomne,iLoopLine)*MATParamMATGetValue(iLoopColomne,iLoopLine);
+			}
+		}
+		
+		return MATTMatrix;
+	}
+
+	CMatrix operator+(CMatrix MATParam){
+		if(uiMATColumnNumber != MATParam.MATGetColumnNumbre() && uiMATLineNumber != MATParam.MATGetLineNumbre()){
+			CException EXCError(EXCEPTION_MissingFile);
+        	throw EXCError;
+		}
+		CMatrix<Type> MATTMatrix = new CMatrix<Type>(null,uiMATColumnNumber, uiMATLineNumber);
+
+		//Transposition
+		for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
+			for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
+				MATTMatrix.pptypeMatrixContent[iLoopColomne][iLoopLine] = MATGetValue(iLoopColomne,iLoopLine)+MATParamMATGetValue(iLoopColomne,iLoopLine);
+			}
+		}
+		
+		return MATTMatrix;
+	}
+
+	CMatrix operator-(CMatrix MATParam){
+		if(uiMATColumnNumber != MATParam.MATGetColumnNumbre() && uiMATLineNumber != MATParam.MATGetLineNumbre()){
+			CException EXCError(EXCEPTION_MissingFile);
+        	throw EXCError;
+		}
+		CMatrix<Type> MATTMatrix = new CMatrix<Type>(null,uiMATColumnNumber, uiMATLineNumber);
+
+		//Transposition
+		for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
+			for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
+				MATTMatrix.pptypeMatrixContent[iLoopColomne][iLoopLine] = MATGetValue(iLoopColomne,iLoopLine)-MATParamMATGetValue(iLoopColomne,iLoopLine);
+			}
+		}
+		
+		return MATTMatrix;
 
 	}
 
+	
+	CMatrix operator=(CMatrix MATParam){
+
+		uiColumnNumber = MATParam.uiMATColumnNumber;
+		uiLineNumber = MATParam.uiMATLineNumber;
+
+		CMatrix<Type> MATTMatrix = new CMatrix<Type>(null,uiColumnNumber, uiLineNumber);
+
+		for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
+			for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
+				MATTMatrix.pptypeMatrixContent[iLoopColomne][iLoopLine] = MATParam.MATGetValue(iLoopColomne, iLoopLine);
+			}
+		}
+
+		return MATTMatrix;
+	}
+
+	//Method
+	/**
+	 * @brief Transpose la matrice actuelle 
+	 * 
+	 * @return CMatrix La matrice transposer
+	 */
+	void MATTransposer() {
+		//We create a new matrix to do the transposition
+		CMatrix<Type> MATTMatrix = new CMatrix<Type>(null,uiMATLineNumber, uiMATColumnNumber);
+
+		//Transposition
+		for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
+			for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
+				MATTMatrix.pptypeMatrixContent[iLoopColomne][iLoopLine] = pptypeMatrixContent[iLoopLine][iLoopColomne];
+			}
+		}
+		
+		uiMATColumnNumber = MATTMatrix.MATGetColumnNumbre();
+		uiMATLineNumber = MATTMatrix.MATGetLineNumbre();
+		pptypeMatrixContent = MATTMatrix.pptypeMatrixContent;
+		
+		//Not sure, might be not use that freeed this variable. 
+		free(MATTMatrix);
+	}
+
+	/**
+	 * @brief Permet l'affichage de la matrice.
+	 * 
+	 */
 	void MATshow() {
 		for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
 			cout << "(";
 			for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
-				cout<<lisMATContent[iLoopColomne][iLoopLine] ;
+				cout<<pptypeMatrixContent[iLoopColomne][iLoopLine] ;
 			}
 			cout << ")\n";
 		}
 	}
 	
+	/**
+	 * @brief Permet la récupération du nombre de colonnes
+	 * 
+	 * @return unsigned int Le nombre de colonnes
+	 */
 	unsigned int MATGetColumnNumbre() {
 		return uiMATColumnNumber;
 	}
 
+	/**
+	 * @brief Permet la récupération du nombre de lignes 
+	 * 
+	 * @return unsigned int Le nombre de lignes
+	 */
 	unsigned int MATGetLineNumbre() {
 		return uiMATLineNumber;
 	}
 
+	/**
+	 * @brief Permet de récupérer la valeur dans la matrice à la uiColomn-iéme colonne
+	 * et uiLine-iéme ligne.
+	 * @param uiColomn 	La colonne
+	 * @param uiLine 	La ligne
+	 * @return Type 	La valeur dans la matrice.
+	 */
 	Type MATGetValue(unsigned int uiColomn, unsigned int uiLine) {
-		for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
-			for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
-				if (iLoopLine == uiLine && iLoopColomne == uiColomn) {
-					return lisMATContent[iLoopColomne][iLoopLine];
+		//If the value are superior avec our number of colomne/line, we return an exception
+		if(uiColomn > uiMATColumnNumber || uiLine > uiMATLineNumber){
+			return null;
+		}
+		//Else, we return the value.
+		else{
+			for (int iLoopColomne = 0; iLoopColomne <= uiMATColumnNumber; iLoopColomne++) {
+				for (int iLoopLine = 0; iLoopLine <= uiMATLineNumber; iLoopLine++) {
+					if (iLoopLine == uiLine && iLoopColomne == uiColomn) {
+						return pptypeMatrixContent[iLoopColomne][iLoopLine];
+					}
 				}
 			}
 		}
