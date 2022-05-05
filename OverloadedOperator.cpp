@@ -4,5 +4,5 @@
 
 template<typename Type>
 CMatrix<Type>* operator*(double dConstantParam, const CMatrix<Type>& MATMatrixParam) {
-	return MatMatrixParam * dConstantParam;
+	return MATMatrixParam * dConstantParam;
 }

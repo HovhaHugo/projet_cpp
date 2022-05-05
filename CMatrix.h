@@ -122,7 +122,7 @@ CMatrix<Type>::CMatrix(CMatrix<Type> &MATParam) {
 //Operator overload
 template<class Type>
 CMatrix<Type>* CMatrix<Type>::operator*(double dMultiplicator){
-	if (typeid(*this->MATGetValue(0,0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(class)) {
+	if (typeid(*this->MATGetValue(0,0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(this)) {
 		CException EXCError(EXCEPTION_InvalidType);
 		throw EXCError;
 	}
@@ -148,7 +148,7 @@ CMatrix<Type>* CMatrix<Type>::operator/(double dDivisor){
         	throw EXCError;
 		}
 
-		if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(class)) {
+		if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(this)) {
 			CException EXCError(EXCEPTION_InvalidType);
 			throw EXCError;
 		}
@@ -173,7 +173,7 @@ CMatrix<Type>* CMatrix<Type>::operator*(CMatrix<Type> MATParam){
 		throw EXCError;
 	}
 
-	if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(class)) {
+	if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(this)) {
 		CException EXCError(EXCEPTION_InvalidType);
 		throw EXCError;
 	}
@@ -197,7 +197,7 @@ CMatrix<Type>* CMatrix<Type>::operator+(CMatrix<Type> MATParam){
         	throw EXCError;
 		}
 
-		if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(class)) {
+		if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(this)) {
 			CException EXCError(EXCEPTION_InvalidType);
 			throw EXCError;
 		}
@@ -222,7 +222,7 @@ CMatrix<Type>* CMatrix<Type>::operator-(CMatrix<Type> MATParam){
         	throw EXCError;
 		}
 
-		if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(class)) {
+		if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(this)) {
 			CException EXCError(EXCEPTION_InvalidType);
 			throw EXCError;
 		}
