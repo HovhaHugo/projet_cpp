@@ -2,9 +2,10 @@
 #ifndef DEF_CMATRIX
 #define DEF_CMATRIX
 
-#define EXCEPTION_TypeMissmatch 1		//They are not the same type of matrix
-#define EXCEPTION_DivisionByZero 2		//As the name said, we cant' divide by zero
-#define EXCEPTION_InvalidType 3			//For the different type of operation, we chose not to accept object or char
+
+#define EXCEPTION_InvalidType 3			//The readed type is not compatible with the current parser used
+#define EXCEPTION_InvalidCondition 7	//If we can't do the multiplication or the division
+#define EXCEPTION_DivisionByZero 8		//As the name said, we cant' divide by zero
 
 #include "Parser.h"
 #include "CException.h"
@@ -22,30 +23,34 @@ private:
 	Type** pptypeMatrixContent;
 public:
 	//Constructors
+	~CMatrix();
 	CMatrix();
 	CMatrix(Type** ptTypeMatrix, unsigned int uiNbColomn, unsigned int uiNbLine);
 	CMatrix(unsigned int uiNbColomn, unsigned int uiNbLine);
 	CMatrix(const char* pcFilePath);
 	CMatrix(CMatrix &MATParam);
 
-	//Overloaded Operators
-	CMatrix* operator*(double dMultiplicator);
-	CMatrix* operator/(double dDivisor);
-	CMatrix* operator*(CMatrix MATParam);
-	CMatrix* operator+(CMatrix MATParam);
-	CMatrix* operator-(CMatrix MATParam);
-	CMatrix* operator=(CMatrix MATParam); //Just the same as the copy constructor
+	//Overload Operator
+	CMatrix<Type>* operator=(CMatrix<Type> MATParam);
 
 	//Method
-	void MATTransposer();
+	CMatrix<Type>* MATTransposer();
 	void MATshow();
 	unsigned int MATGetColumnNumbre();
 	unsigned int MATGetLineNumbre();
-	Type* MATGetValue(unsigned int uiColomn, unsigned int uiLine);
+	Type MATGetValue(unsigned int uiColomn, unsigned int uiLine);
+	void MATSetValue(unsigned int uiColomn, unsigned int uiLine, Type tValue);
 };
 
 
 //Constructors
+template<class Type>
+CMatrix<Type>::~CMatrix() {
+	for (unsigned int uiLoop = 0; uiLoop < uiMATLineNumber; ++uiLoop)
+		delete[] pptypeMatrixContent[uiLoop];
+	delete[] pptypeMatrixContent;
+}
+
 template<class Type>
 CMatrix<Type>::CMatrix(const char* pcFilePath) {
 
@@ -114,145 +119,24 @@ CMatrix<Type>::CMatrix(CMatrix<Type> &MATParam) {
 
 		for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
 			for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
-				pptypeMatrixContent[uiLoopColomne][uiLoopLine] = *MATParam.MATGetValue(uiLoopColomne, uiLoopLine);
+				pptypeMatrixContent[uiLoopColomne][uiLoopLine] = MATParam.MATGetValue(uiLoopColomne, uiLoopLine);
 			}
 		}
 	}
 
-//Operator overload
+//Overload operator
 template<class Type>
-CMatrix<Type>* CMatrix<Type>::operator*(double dMultiplicator){
-	if (typeid(*this->MATGetValue(0,0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(this)) {
-		CException EXCError(EXCEPTION_InvalidType);
-		throw EXCError;
-	}
-	CMatrix<Type>* MATTMatrix = new CMatrix<Type>(uiMATColumnNumber, uiMATLineNumber);
+CMatrix<Type>* CMatrix<Type>::operator=(CMatrix<Type> MATParam) {
+	CMatrix<Type>* MATTMatrix = new CMatrix<Type>(MATParam.uiMATColumnNumber, MATParam.uiMATLineNumber);
 
-	//Multiplication
-	if (typeid(MATTMatrix->pptypeMatrixContent[0][0]) == typeid(double)) {
-		for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
-			for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
-				MATTMatrix->pptypeMatrixContent[uiLoopColomne][uiLoopLine] = *MATTMatrix->MATGetValue(uiLoopColomne, uiLoopLine) * dMultiplicator;
-			}
+	for (int iLoopColomne = 0; iLoopColomne < uiMATColumnNumber; iLoopColomne++) {
+		for (int iLoopLine = 0; iLoopLine < uiMATLineNumber; iLoopLine++) {
+			MATTMatrix.pptypeMatrixContent[iLoopColomne][iLoopLine] = MATParam.MATGetValue(iLoopColomne, iLoopLine);
 		}
 	}
-	
+
 	return MATTMatrix;
 }
-
-template<class Type>
-CMatrix<Type>* CMatrix<Type>::operator/(double dDivisor){
-		//Exception management
-		if(dDivisor == 0){
-			CException EXCError(EXCEPTION_DivisionByZero);
-        	throw EXCError;
-		}
-
-		if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(this)) {
-			CException EXCError(EXCEPTION_InvalidType);
-			throw EXCError;
-		}
-
-		//We create a new object and send it at the end of the function
-		CMatrix<Type>* MATTMatrix = new CMatrix<Type>(uiMATColumnNumber, uiMATLineNumber);
-
-		//Division
-		for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
-			for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
-				MATTMatrix->pptypeMatrixContent[uiLoopColomne][uiLoopLine] = *MATGetValue(uiLoopColomne, uiLoopLine)/ dDivisor;
-			}
-		}
-		
-		return MATTMatrix;
-	}
-
-template<class Type>
-CMatrix<Type>* CMatrix<Type>::operator*(CMatrix<Type> MATParam){
-	if(uiMATColumnNumber != MATParam.MATGetLineNumbre()){
-		CException EXCError(EXCEPTION_MissingFile);
-		throw EXCError;
-	}
-
-	if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(this)) {
-		CException EXCError(EXCEPTION_InvalidType);
-		throw EXCError;
-	}
-
-	CMatrix<Type>* MATTMatrix = new CMatrix<Type>(uiMATColumnNumber, uiMATLineNumber);
-
-	//Transposition
-	for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
-		for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
-			MATTMatrix->pptypeMatrixContent[uiLoopColomne][uiLoopLine] = *MATGetValue(uiLoopColomne, uiLoopLine)*(*MATParam.MATGetValue(uiLoopColomne, uiLoopLine));
-		}
-	}
-	
-	return MATTMatrix;
-}
-
-template<class Type>
-CMatrix<Type>* CMatrix<Type>::operator+(CMatrix<Type> MATParam){
-		if(uiMATColumnNumber != MATParam.MATGetColumnNumbre() && uiMATLineNumber != MATParam.MATGetLineNumbre()){
-			CException EXCError(EXCEPTION_MissingFile);
-        	throw EXCError;
-		}
-
-		if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(this)) {
-			CException EXCError(EXCEPTION_InvalidType);
-			throw EXCError;
-		}
-
-		CMatrix<Type>* MATTMatrix = new CMatrix<Type>(uiMATColumnNumber, uiMATLineNumber);
-
-		//Transposition
-		for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
-			for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
-				MATTMatrix->pptypeMatrixContent[uiLoopColomne][uiLoopLine] = *MATGetValue(uiLoopColomne, uiLoopLine)+ 
-					*MATParam.MATGetValue(uiLoopColomne, uiLoopLine);
-			}
-		}
-		
-		return MATTMatrix;
-	}
-
-template<class Type>
-CMatrix<Type>* CMatrix<Type>::operator-(CMatrix<Type> MATParam){
-		if(uiMATColumnNumber != MATParam.MATGetColumnNumbre() && uiMATLineNumber != MATParam.MATGetLineNumbre()){
-			CException EXCError(EXCEPTION_MissingFile);
-        	throw EXCError;
-		}
-
-		if (typeid(*this->MATGetValue(0, 0)) == typeid(char) || typeid(*this->MATGetValue(0, 0)) == typeid(this)) {
-			CException EXCError(EXCEPTION_InvalidType);
-			throw EXCError;
-		}
-
-		CMatrix<Type>* MATTMatrix = new CMatrix<Type>(uiMATColumnNumber, uiMATLineNumber);
-
-		//Transposition
-		for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
-			for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
-				MATTMatrix->pptypeMatrixContent[uiLoopColomne][uiLoopLine] = *MATGetValue(uiLoopColomne, uiLoopLine)- 
-					*MATParam.MATGetValue(uiLoopColomne, uiLoopLine);
-			}
-		}
-		
-		return MATTMatrix;
-
-	}
-
-template<class Type>
-CMatrix<Type>*	CMatrix<Type>::operator=(CMatrix<Type> MATParam){
-		CMatrix<Type>* MATTMatrix = new CMatrix<Type>(MATParam.uiMATColumnNumber, MATParam.uiMATLineNumber);
-
-		for (int iLoopColomne = 0; iLoopColomne < uiMATColumnNumber; iLoopColomne++) {
-			for (int iLoopLine = 0; iLoopLine < uiMATLineNumber; iLoopLine++) {
-				MATTMatrix.pptypeMatrixContent[iLoopColomne][iLoopLine] = MATParam.MATGetValue(iLoopColomne, iLoopLine);
-			}
-		}
-
-		return MATTMatrix;
-	}
 
 //Method
 /**
@@ -261,23 +145,19 @@ CMatrix<Type>*	CMatrix<Type>::operator=(CMatrix<Type> MATParam){
 	 * @return CMatrix La matrice transposer
 */
 template<class Type>
-void CMatrix<Type>::MATTransposer() {
+CMatrix<Type>* CMatrix<Type>::MATTransposer() {
 		//We create a new matrix to do the transposition
 		CMatrix<Type>* MATTMatrix = new CMatrix<Type>(uiMATLineNumber, uiMATColumnNumber);
 
 		//Transposition
-		for (unsigned int iLoopColomne = 0; iLoopColomne < uiMATColumnNumber; iLoopColomne++) {
-			for (unsigned int iLoopLine = 0; iLoopLine < uiMATLineNumber; iLoopLine++) {
-				MATTMatrix->pptypeMatrixContent[iLoopColomne][iLoopLine] = pptypeMatrixContent[iLoopLine][iLoopColomne];
+		for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
+			for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
+				MATTMatrix->pptypeMatrixContent[uiLoopColomne][uiLoopLine] = pptypeMatrixContent[uiLoopLine][uiLoopColomne];
 			}
 		}
 		
-		uiMATColumnNumber = MATTMatrix->MATGetColumnNumbre();
-		uiMATLineNumber = MATTMatrix->MATGetLineNumbre();
-		pptypeMatrixContent = MATTMatrix->pptypeMatrixContent;
-		
 		//Not sure, might be not use that freeed this variable. 
-		delete MATTMatrix;
+		return MATTMatrix;
 	}
 
 /**
@@ -293,7 +173,7 @@ void CMatrix<Type>::MATshow() {
 		for (unsigned int iLoopColomne = 0; iLoopColomne < uiMATColumnNumber; iLoopColomne++) {
 			cout << "(";
 			for (unsigned int iLoopLine = 0; iLoopLine < uiMATLineNumber; iLoopLine++) {
-				cout << *MATGetValue(iLoopColomne,iLoopLine);
+				cout << MATGetValue(iLoopColomne,iLoopLine);
 				cout << ", ";
 			}
 			cout << ")\n";
@@ -329,21 +209,47 @@ unsigned int CMatrix<Type>::MATGetLineNumbre() {
 	 * @return Type 	La valeur dans la matrice.
 	 */
 template<class Type>
-Type* CMatrix<Type>::MATGetValue(unsigned int uiColomn, unsigned int uiLine) {
-		//If the value are superior avec our number of colomne/line, we return an exception
-		if(uiColomn > uiMATColumnNumber || uiLine > uiMATLineNumber){
-			return NULL;
-		}
-		//Else, we return the value.
-		else{
-			for (unsigned int iLoopColomne = 0; iLoopColomne < uiMATColumnNumber; iLoopColomne++) {
-				for (unsigned int iLoopLine = 0; iLoopLine < uiMATLineNumber; iLoopLine++) {
-					if (iLoopLine == uiLine && iLoopColomne == uiColomn) {
-						return &pptypeMatrixContent[iLoopColomne][iLoopLine];
-					}
+Type CMatrix<Type>::MATGetValue(unsigned int uiColomn, unsigned int uiLine) {
+	//If the value are in our number of colomne/line, we return the value
+	if(uiColomn <= uiMATColumnNumber || uiLine <= uiMATLineNumber){
+		for (unsigned int iLoopColomne = 0; iLoopColomne < uiMATColumnNumber; iLoopColomne++) {
+			for (unsigned int iLoopLine = 0; iLoopLine < uiMATLineNumber; iLoopLine++) {
+				if (iLoopLine == uiLine && iLoopColomne == uiColomn) {
+					return pptypeMatrixContent[iLoopColomne][iLoopLine];
 				}
 			}
 		}
 	}
+	else {
+		CException EXCError(EXCEPTION_InvalidCondition);
+		throw EXCError;
+	}
+	return NULL;
+}
+
+
+template<class Type>
+void CMatrix<Type>::MATSetValue(unsigned int uiColomn, unsigned int uiLine, Type tValue) {
+	if (typeid(MATGetValue(0, 0)) != typeid(tValue)) {
+		CException EXCError(EXCEPTION_InvalidType);
+		throw EXCError;
+	}
+
+	//If the value are superior avec our number of colomne/line, we return an exception
+	if (uiColomn > uiMATColumnNumber || uiLine > uiMATLineNumber) {
+		CException EXCError(EXCEPTION_InvalidCondition);
+		throw EXCError;
+	}
+	//Else, we return the value.
+	else {
+		for (unsigned int iLoopColomne = 0; iLoopColomne < uiMATColumnNumber; iLoopColomne++) {
+			for (unsigned int iLoopLine = 0; iLoopLine < uiMATLineNumber; iLoopLine++) {
+				if (iLoopLine == uiLine && iLoopColomne == uiColomn) {
+					pptypeMatrixContent[iLoopColomne][iLoopLine] = tValue;
+				}
+			}
+		}
+	}
+}
 
 #endif

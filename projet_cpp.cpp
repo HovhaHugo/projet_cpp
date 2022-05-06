@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "CMatrix.h"
+#include "OverloadedOperator.h"
 using namespace std;
 
 
@@ -23,39 +24,41 @@ int main()
 
     cout << "Transposer" << endl;
     cout << "-----------------" << endl;
-    matricetest->MATTransposer();
+    CMatrix<double>* matriceTransposer = matricetest->MATTransposer();
 
-    matricetest->MATshow();
+    matriceTransposer->MATshow();
 
     cout << "Multiplication x2" << endl;
     cout << "-----------------" << endl;
-    CMatrix<double>* matriceMultiple = new CMatrix<double>(*(*matricetest * 2.0));
+    CMatrix<double>* matriceMultiple = (2.0 * *matricetest);
     
     matriceMultiple->MATshow();
 
     cout << "Division /2" << endl;
     cout << "-----------------" << endl;
-    CMatrix<double>* matriceDivision = new CMatrix<double>(*(*matriceMultiple /2.0));
+    CMatrix<double>* matriceDivision = (*matriceMultiple /2.0);
     
     matriceDivision->MATshow();
 
     cout << "Multiplication xMatrice" << endl;
     cout << "-----------------" << endl;
-    CMatrix<double>* matriceMultiple2 = new CMatrix<double>(*(*matriceDivision * *matriceMultiple));
+    CMatrix<double>* matriceMultiple2 = (*matriceDivision * *matriceMultiple);
 
     matriceMultiple2->MATshow();
 
     cout << "Addition +Matrice" << endl;
     cout << "-----------------" << endl;
-    CMatrix<double>* matriceAddition = new CMatrix<double>(*(*matriceDivision + *matriceMultiple));
+    CMatrix<double>* matriceAddition = (*matriceDivision + *matriceMultiple);
 
     matriceAddition->MATshow();
 
     cout << "Substraction -Matrice" << endl;
     cout << "-----------------" << endl;
-    CMatrix<double>* matriceSoustraction = new CMatrix<double>(*(*matriceDivision - *matriceMultiple));
+    CMatrix<double>* matriceSoustraction = (*matriceDivision - *matriceMultiple);
 
     matriceSoustraction->MATshow();
+
+    delete matricetest;
 
 	cout << "test fini" << endl;
 }
