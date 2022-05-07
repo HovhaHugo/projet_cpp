@@ -63,7 +63,7 @@ CException::CException(unsigned int uiValueParam, char* pcFunctionParam) {
 * Postcondition: The object has been deleted from memory
 ***/
 CException::~CException() {
-	delete pcEXCFunction;
+	delete[] pcEXCFunction;
 }
 
 /***
