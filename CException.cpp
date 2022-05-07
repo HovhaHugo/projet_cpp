@@ -55,19 +55,7 @@ CException::CException(unsigned int uiValueParam, char* pcFunctionParam) {
 
 }
 
-/***
-* Copy constructor of CException
-* Input: CException& EXCParam
-* Output: /
-* Precondition: /
-* Postcondition: uiEXCValue = EXCParam.uiEXCValue and pcEXCFunction = EXCParam.pcEXCFunction (copied)
-***/
-CException::CException(CException& EXCParam) {
-	uiEXCValue = EXCParam.uiEXCValue;
-	pcEXCFunction = new char[25];
 
-	sprintf_s(pcEXCFunction, 20, EXCParam.pcEXCFunction);
-}
 
 /***
 * Delete a CException object

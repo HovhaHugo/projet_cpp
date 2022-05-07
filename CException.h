@@ -14,7 +14,6 @@ public:
 	CException();
 	CException(unsigned int uiValueParam);
 	CException(unsigned int uiValueParam, char* pcFunctionParam);
-	CException(CException& EXCParam);
 	~CException();
 
 	//Getters/setters

@@ -58,7 +58,8 @@ CMatrix<Type>::CMatrix(const char* pcFilePath) {
 			pptypeMatrixContent = ParseDataDouble(pcFilePath, &uiMATColumnNumber, &uiMATLineNumber);
 		}
 		catch (CException& EXCException) {
-			printf("An error occured\nError code: %d\nFunction: %s\n",EXCException.EXCgetValue(),EXCException.EXCgetFunction());
+			throw EXCException;
+			//printf("An error occured\nError code: %d\nFunction: %s\n",EXCException.EXCgetValue(),EXCException.EXCgetFunction());
 		}
 
 	}
