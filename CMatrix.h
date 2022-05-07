@@ -1,155 +1,255 @@
-// projet_cpp.cpp : Ce fichier contient la fonction 'main'. L'exécution du programme commence et se termine à cet endroit.
-//
 
+#ifndef DEF_CMATRIX
+#define DEF_CMATRIX
+
+
+#define EXCEPTION_InvalidType 3			//The readed type is not compatible with the current parser used
+#define EXCEPTION_InvalidCondition 7	//If we can't do the multiplication or the division
+#define EXCEPTION_DivisionByZero 8		//As the name said, we cant' divide by zero
+
+#include "Parser.h"
+#include "CException.h"
+#include <stdio.h>
 #include <iostream>
-#include "CMatrix.h"
-#include "OverloadedOperator.h"
 using namespace std;
 
 
-int main(int argc, char *argv[])
+template<class Type>
+class CMatrix
 {
-    unsigned int uiMatrixNbRead = argc - 1;
+private:
+	unsigned int uiMATColumnNumber;
+	unsigned int uiMATLineNumber;
+	Type** pptypeMatrixContent;
+public:
+	//Constructors
+	~CMatrix();
+	CMatrix();
+	CMatrix(Type** ptTypeMatrix, unsigned int uiNbColomn, unsigned int uiNbLine);
+	CMatrix(unsigned int uiNbColomn, unsigned int uiNbLine);
+	CMatrix(const char* pcFilePath);
+	CMatrix(CMatrix &MATParam);
 
-    //For each path file send, we create a matrix
-    CMatrix<double>** pMatrixList = (CMatrix<double>**) malloc(sizeof(CMatrix<double>) * uiMatrixNbRead);
-    if (pMatrixList == nullptr) {
-        CException EXCError(EXCEPTION_InvalidCondition);
-        throw EXCError;
-    }
+	//Overload Operator
+	CMatrix<Type>* operator=(CMatrix<Type> MATParam);
 
-    cout << "Debut du test : " << endl;
-    cout << "---------------------------" << endl;
-    cout << "Affichage de la/les matrice.s" << endl;
-
-    //For each matrix we show them
-    for (unsigned int uiLoop = 1; uiLoop <= uiMatrixNbRead; uiLoop++) {
-        try {
-            cout << "Matrice numero " << uiLoop << ":" << endl;
-            pMatrixList[uiLoop - 1] = new CMatrix<double>(argv[uiLoop]);
-            pMatrixList[uiLoop - 1]->MATshow();
-            cout << "---------------------------" << endl;
-        }
-        catch (CException EXCError) {
-            cerr << EXCError.EXCgetFunction();
-            return -1;
-        }
-    }
+	//Method
+	CMatrix<Type>* MATTransposer();
+	void MATshow();
+	unsigned int MATGetColumnNumbre();
+	unsigned int MATGetLineNumbre();
+	Type MATGetValue(unsigned int uiColomn, unsigned int uiLine);
+	void MATSetValue(unsigned int uiColomn, unsigned int uiLine, Type tValue);
+};
 
 
-
-    //Ask the user to bring a value
-    double dVal = 0;
-    cout << "Entrez un chiffre: ";
-    cin >> dVal;
-
-    if (dVal == 0) {
-        cout << "Vous avez soit taper 0 soit un autre chose qu'un chiffre" << endl;
-        cout << "S'il s'agit d'une erreur, merci de saisir un nouveau chiffre :" << endl;
-        cin >> dVal;
-    }
-
-
-
-    cout << "Multiplication avec c" << endl;
-    //We show the result of the multiplication of each matrix with dValue
-    for (unsigned int uiLoop = 0; uiLoop < uiMatrixNbRead; uiLoop++) {
-        try {
-            cout << "Matrice numero " << uiLoop << ":" << endl;
-            CMatrix<double>* resultMatrix = (*pMatrixList[uiLoop]) * dVal;
-            resultMatrix->MATshow();
-            delete resultMatrix;
-            cout << "---------------------------" << endl;
-        }
-        catch (CException EXCError) {
-            cerr << EXCError.EXCgetFunction();
-            return -1;
-        }
-    }
-    cout << "---------------------------" << endl;
-
-
-    cout << "Division avec c" << endl;
-    if (dVal == 0) {
-        cout << "Division impossible avec 0, opertation passer" << endl;
-    }
-    else {
-        //We show the result of the division of each matrix with dValuec
-        for (unsigned int uiLoop = 0; uiLoop < uiMatrixNbRead; uiLoop++) {
-            cout << "Matrice numero " << uiLoop << ":" << endl;
-            try {
-                CMatrix<double>* resultMatrix = *pMatrixList[uiLoop] / dVal;
-                resultMatrix->MATshow();
-                delete resultMatrix;
-                cout << "---------------------------" << endl;
-            }
-            catch (CException EXCError) {
-                cerr << EXCError.EXCgetFunction();
-                return -1;
-            }
-
-        }
-    }
-    cout << "---------------------------" << endl;
-
-
-    cout << "Addition des matrices" << endl;
-    //We show the result of the multiplication of every matrix
-    CMatrix<double>* resultMatrix = new CMatrix<double>(*pMatrixList[0]);
-    for (unsigned int uiLoop = 1; uiLoop < uiMatrixNbRead; uiLoop++) {
-        try {
-            resultMatrix = *resultMatrix + *pMatrixList[uiLoop];
-        }
-        catch (CException EXCError) {
-            cerr << EXCError.EXCgetFunction();
-            //return -1;
-        }
-
-    }
-    resultMatrix->MATshow();
-    cout << "---------------------------" << endl;
-    delete resultMatrix;
-
-
-    cout << "Addition et soustraction des matrices" << endl;
-    //We show the result of this operation : M1 - M2 + M3 - M4 + M5 - ...
-    CMatrix<double>* resultMatrix2 = new CMatrix<double>(*pMatrixList[0]);
-    bool bPlus = false;
-    for (unsigned int uiLoop = 0; uiLoop < uiMatrixNbRead; uiLoop++) {
-        try {
-            if (bPlus == true) {
-                resultMatrix2 = *resultMatrix2 + *pMatrixList[uiLoop];
-                bPlus = false;
-            }
-            else {
-                resultMatrix2 = *resultMatrix2 - *pMatrixList[uiLoop];
-                bPlus = true;
-            }
-        }
-        catch (CException EXCError) {
-            cerr << EXCError.EXCgetFunction();
-            return -1;
-        }
-    }
-    resultMatrix2->MATshow();
-    cout << "---------------------------" << endl;
-    delete resultMatrix2;
-
-
-    cout << "Multiplication des matrices" << endl;
-    //We show the result of the sum of every matrix  : M1 + M2 + M3 + ...
-    CMatrix<double>* resultMatrix3 = new CMatrix<double>(*pMatrixList[0]);
-    for (unsigned int uiLoop = 1; uiLoop < uiMatrixNbRead; uiLoop++) {
-        try {
-            resultMatrix3 = *resultMatrix3 * *pMatrixList[uiLoop];
-        }
-        catch (CException EXCError) {
-            cerr << EXCError.EXCgetFunction();
-            return -1;
-        }
-
-    }
-    resultMatrix3->MATshow();
-    cout << "---------------------------" << endl;
-    delete resultMatrix3;
+//Constructors
+template<class Type>
+CMatrix<Type>::~CMatrix() {
+	for (unsigned int uiLoop = 0; uiLoop < uiMATLineNumber; ++uiLoop)
+		delete[] pptypeMatrixContent[uiLoop];
+	delete[] pptypeMatrixContent;
 }
+
+template<class Type>
+CMatrix<Type>::CMatrix(const char* pcFilePath) {
+
+		try {
+			pptypeMatrixContent = ParseDataDouble(pcFilePath, &uiMATColumnNumber, &uiMATLineNumber);
+		}
+		catch (CException& EXCException) {
+			printf("An error occured\nError code: %d\nFunction: %s\n",EXCException.EXCgetValue(),EXCException.EXCgetFunction());
+		}
+
+	}
+
+template<class Type>
+CMatrix<Type>::CMatrix() {
+		uiMATColumnNumber = 0;
+		uiMATLineNumber = 0;
+		pptypeMatrixContent = new Type * [uiMATLineNumber];
+		for (unsigned int uiLoop = 0; uiLoop < uiMATLineNumber; uiLoop++) {
+			pptypeMatrixContent[uiLoop] = new Type[uiMATColumnNumber];
+		}
+	}
+
+template<class Type>
+CMatrix<Type>::CMatrix(Type** ptTypeMatrix, unsigned int uiNbColomn, unsigned int uiNbLine) {
+		uiMATColumnNumber = uiNbColomn;
+		uiMATLineNumber = uiNbLine;
+		pptypeMatrixContent = nullptr;
+		pptypeMatrixContent = new Type* [uiMATLineNumber];
+		for (unsigned int uiLoop = 0; uiLoop < uiMATLineNumber; uiLoop++)
+			pptypeMatrixContent[uiLoop] = new Type[uiMATColumnNumber];
+
+		for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
+			for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
+				pptypeMatrixContent[uiLoopLine][uiLoopColomne] = ptTypeMatrix[uiLoopLine][uiLoopColomne];
+			}
+		}
+	}
+
+template<class Type>
+CMatrix<Type>::CMatrix(unsigned int uiNbColomn, unsigned int uiNbLine) {
+	uiMATColumnNumber = uiNbColomn;
+	uiMATLineNumber = uiNbLine;
+	double dValue = 0.0;
+	pptypeMatrixContent = new Type * [uiMATLineNumber];
+	for (unsigned int uiLoop = 0; uiLoop < uiMATLineNumber; uiLoop++){
+		pptypeMatrixContent[uiLoop] = new Type[uiMATColumnNumber];
+	}
+
+	for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
+		for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
+			pptypeMatrixContent[uiLoopLine][uiLoopColomne] = dValue;
+			dValue++;
+		}
+	}
+}
+
+template<class Type>
+CMatrix<Type>::CMatrix(CMatrix<Type> &MATParam) {
+		uiMATColumnNumber = MATParam.MATGetColumnNumbre();
+		uiMATLineNumber = MATParam.MATGetLineNumbre();
+
+		pptypeMatrixContent = new Type * [uiMATLineNumber];
+		for (unsigned int uiLoop = 0; uiLoop < uiMATLineNumber; uiLoop++) {
+			pptypeMatrixContent[uiLoop] = new Type[uiMATColumnNumber];
+		}
+
+		for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
+			for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
+				pptypeMatrixContent[uiLoopLine][uiLoopColomne] = MATParam.MATGetValue(uiLoopLine, uiLoopColomne);
+			}
+		}
+	}
+
+//Overload operator
+template<class Type>
+CMatrix<Type>* CMatrix<Type>::operator=(CMatrix<Type> MATParam) {
+	CMatrix<Type>* MATTMatrix = new CMatrix<Type>(MATParam.uiMATColumnNumber, MATParam.uiMATLineNumber);
+
+	for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
+		for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
+			MATTMatrix.pptypeMatrixContent[uiLoopLine][uiLoopColomne] = MATParam.MATGetValue(uiLoopLine, uiLoopColomne);
+		}
+	}
+
+	return MATTMatrix;
+}
+
+//Method
+/**
+	 * @brief Transpose la matrice actuelle
+	 *
+	 * @return CMatrix La matrice transposer
+*/
+template<class Type>
+CMatrix<Type>* CMatrix<Type>::MATTransposer() {
+		//We create a new matrix to do the transposition
+		CMatrix<Type>* MATTMatrix = new CMatrix<Type>(uiMATLineNumber, uiMATColumnNumber);
+
+		//Transposition
+		for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
+			for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
+				MATTMatrix->pptypeMatrixContent[uiLoopLine][uiLoopColomne] = pptypeMatrixContent[uiLoopLine][uiLoopColomne];
+			}
+		}
+
+		//Not sure, might be not use that freeed this variable.
+		return MATTMatrix;
+	}
+
+/**
+	 * @brief Permet l'affichage de la matrice.
+	 *
+	 */
+template<class Type>
+void CMatrix<Type>::MATshow() {
+	if (pptypeMatrixContent == nullptr) {
+		cout << "(null)\n";
+	}
+	else {
+		for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
+			cout << "(";
+			for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
+				cout << MATGetValue(uiLoopLine, uiLoopColomne);
+				cout << ", ";
+			}
+			cout << ")\n";
+		}
+	}
+}
+
+/**
+	 * @brief Permet la récupération du nombre de colonnes
+	 *
+	 * @return unsigned int Le nombre de colonnes
+	 */
+template<class Type>
+unsigned int CMatrix<Type>::MATGetColumnNumbre() {
+	return uiMATColumnNumber;
+}
+
+/**
+	 * @brief Permet la récupération du nombre de lignes
+	 *
+	 * @return unsigned int Le nombre de lignes
+	 */
+template<class Type>
+unsigned int CMatrix<Type>::MATGetLineNumbre() {
+	return uiMATLineNumber;
+}
+
+/**
+	 * @brief Permet de récupérer la valeur dans la matrice à la uiColomn-iéme colonne
+	 * et uiLine-iéme ligne.
+	 * @param uiColomn 	La colonne
+	 * @param uiLine 	La ligne
+	 * @return Type 	La valeur dans la matrice.
+	 */
+template<class Type>
+Type CMatrix<Type>::MATGetValue(unsigned int uiLine, unsigned int uiColomn) {
+	//If the value are in our number of colomne/line, we return the value
+	if(uiColomn <= uiMATColumnNumber || uiLine <= uiMATLineNumber){
+		for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
+			for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
+				if (uiLoopLine == uiLine && uiLoopColomne == uiColomn) {
+					return pptypeMatrixContent[uiLoopLine][uiLoopColomne];
+				}
+			}
+		}
+	}
+	else {
+		CException EXCError(EXCEPTION_InvalidCondition);
+		throw EXCError;
+	}
+	return NULL;
+}
+
+
+template<class Type>
+void CMatrix<Type>::MATSetValue(unsigned int uiLine, unsigned int uiColomn, Type tValue) {
+	if (typeid(MATGetValue(0, 0)) != typeid(tValue)) {
+		CException EXCError(EXCEPTION_InvalidType);
+		throw EXCError;
+	}
+
+	//If the value are superior avec our number of colomne/line, we return an exception
+	if (uiColomn > uiMATColumnNumber || uiLine > uiMATLineNumber) {
+		CException EXCError(EXCEPTION_InvalidCondition);
+		throw EXCError;
+	}
+	//Else, we return the value.
+	else {
+		for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
+			for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
+				if (uiLoopLine == uiLine && uiLoopColomne == uiColomn) {
+					pptypeMatrixContent[uiLoopLine][uiLoopColomne] = tValue;
+				}
+			}
+		}
+	}
+}
+
+#endif
