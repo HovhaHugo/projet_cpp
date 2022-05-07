@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     //For each path file send, we create a matrix
     CMatrix<double>** pMatrixList = (CMatrix<double>**) malloc(sizeof(CMatrix<double>) * uiMatrixNbRead);
     if (pMatrixList == nullptr) {
-        CException EXCError(EXCEPTION_InvalidCondition);
+        CException EXCError(EXCEPTION_MallocError);
         throw EXCError;
     }
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     cin >> dVal;
 
     if (dVal == 0) {
-        cout << "Vous avez soit taper 0 soit un autre chose qu'un chiffre" << endl;
+        cout << "Vous avez soit entre 0 soit un autre chose qu'un chiffre" << endl;
         cout << "S'il s'agit d'une erreur, merci de saisir un nouveau chiffre :" << endl;
         cin >> dVal;
     }
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
     cout << "Division avec c" << endl;
     if (dVal == 0) {
-        cout << "Division impossible avec 0, opertation passer" << endl;
+        cout << "Division impossible avec 0, operation passee" << endl;
     }
     else {
         //We show the result of the division of each matrix with dValuec
@@ -95,10 +95,10 @@ int main(int argc, char *argv[])
 
     cout << "Addition des matrices" << endl;
     //We show the result of the multiplication of every matrix
-    CMatrix<double>* resultMatrix = new CMatrix<double>(*pMatrixList[0]);
+    CMatrix<double>* pMATResulMatrix = new CMatrix<double>(*pMatrixList[0]);
     for (unsigned int uiLoop = 1; uiLoop < uiMatrixNbRead; uiLoop++) {
         try {
-            resultMatrix = *resultMatrix + *pMatrixList[uiLoop];
+            pMATResulMatrix = *pMATResulMatrix + *pMatrixList[uiLoop];
         }
         catch (CException EXCError) {
             cerr << EXCError.EXCgetFunction();
@@ -106,23 +106,23 @@ int main(int argc, char *argv[])
         }
 
     }
-    resultMatrix->MATshow();
+    pMATResulMatrix->MATshow();
     cout << "---------------------------" << endl;
-    delete resultMatrix;
+    delete pMATResulMatrix;
 
 
     cout << "Addition et soustraction des matrices" << endl;
     //We show the result of this operation : M1 - M2 + M3 - M4 + M5 - ...
-    CMatrix<double>* resultMatrix2 = new CMatrix<double>(*pMatrixList[0]);
+    CMatrix<double>* pMATResulMatrix = new CMatrix<double>(*pMatrixList[0]);
     bool bPlus = false;
     for (unsigned int uiLoop = 0; uiLoop < uiMatrixNbRead; uiLoop++) {
         try {
             if (bPlus == true) {
-                resultMatrix2 = *resultMatrix2 + *pMatrixList[uiLoop];
+                pMATResulMatrix = *pMATResulMatrix + *pMatrixList[uiLoop];
                 bPlus = false;
             }
             else {
-                resultMatrix2 = *resultMatrix2 - *pMatrixList[uiLoop];
+                pMATResulMatrix = *pMATResulMatrix - *pMatrixList[uiLoop];
                 bPlus = true;
             }
         }
@@ -131,17 +131,17 @@ int main(int argc, char *argv[])
             return -1;
         }
     }
-    resultMatrix2->MATshow();
+    pMATResulMatrix->MATshow();
     cout << "---------------------------" << endl;
-    delete resultMatrix2;
+    delete pMATResulMatrix;
 
 
     cout << "Multiplication des matrices" << endl;
     //We show the result of the sum of every matrix  : M1 + M2 + M3 + ...
-    CMatrix<double>* resultMatrix3 = new CMatrix<double>(*pMatrixList[0]);
+    CMatrix<double>* pMATResulMatrix = new CMatrix<double>(*pMatrixList[0]);
     for (unsigned int uiLoop = 1; uiLoop < uiMatrixNbRead; uiLoop++) {
         try {
-            resultMatrix3 = *resultMatrix3 * *pMatrixList[uiLoop];
+            pMATResulMatrix = *pMATResulMatrix * *pMatrixList[uiLoop];
         }
         catch (CException EXCError) {
             cerr << EXCError.EXCgetFunction();
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
         }
 
     }
-    resultMatrix3->MATshow();
+    pMATResulMatrix->MATshow();
     cout << "---------------------------" << endl;
-    delete resultMatrix3;
+    delete pMATResulMatrix;
 }
