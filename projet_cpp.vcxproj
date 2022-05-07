@@ -141,7 +141,6 @@
   <ItemGroup>
     <ClCompile Include="CException.cpp" />
     <ClCompile Include="CMatrix.cpp" />
-    <ClCompile Include="OverloadedOperator.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="projet_cpp.cpp" />
   </ItemGroup>

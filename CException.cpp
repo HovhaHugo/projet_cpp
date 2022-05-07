@@ -38,7 +38,7 @@ CException::CException(unsigned int uiValueParam) {
 }
 
 /***
-* Default constructor of CException
+* Constructor of CException
 * Input: unsigned int: uiValueParam, char*: pcFunctionParam
 * Output: /
 * Precondition: /
