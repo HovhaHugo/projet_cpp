@@ -136,7 +136,6 @@ template<class Type>
 CMatrix<Type>::CMatrix(unsigned int uiNbColomn, unsigned int uiNbLine) {
 	uiMATColumnNumber = uiNbColomn;
 	uiMATLineNumber = uiNbLine;
-	double dValue = 0.0;
 	pptypeMATMatrixContent = new Type * [uiMATLineNumber];
 	for (unsigned int uiLoop = 0; uiLoop < uiMATLineNumber; uiLoop++){
 		pptypeMATMatrixContent[uiLoop] = new Type[uiMATColumnNumber];
@@ -144,8 +143,7 @@ CMatrix<Type>::CMatrix(unsigned int uiNbColomn, unsigned int uiNbLine) {
 
 	for (unsigned int uiLoopLine = 0; uiLoopLine < uiMATLineNumber; uiLoopLine++) {
 		for (unsigned int uiLoopColomne = 0; uiLoopColomne < uiMATColumnNumber; uiLoopColomne++) {
-			pptypeMATMatrixContent[uiLoopLine][uiLoopColomne] = dValue;
-			dValue++;
+			pptypeMATMatrixContent[uiLoopLine][uiLoopColomne] = NULL;
 		}
 	}
 }
