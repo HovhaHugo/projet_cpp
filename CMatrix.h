@@ -130,7 +130,7 @@ CMatrix<Type>::CMatrix(Type** pptypeMatrixContent, unsigned int uiNbColomn, unsi
 * Input: unsigned int uiNbColomn, unsigned int uiNbLine
 * Output: /
 * Precondition: /
-* Postcondition: The CMatrix is initialised with a size of uiNbColumn * uiNbLine and the content is filled with ?????????????????????
+* Postcondition: The CMatrix is initialised with a size of uiNbColumn * uiNbLine and the content is filled with null
 ***/
 template<class Type>
 CMatrix<Type>::CMatrix(unsigned int uiNbColomn, unsigned int uiNbLine) {
